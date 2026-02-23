@@ -49,8 +49,13 @@ public sealed class DvachThreadParser : IDvachThreadParser
 		var threadId = threadUri.OriginalString.Substring(lastSlashIndexInThreadUri + 1,
 			lastDotIndexInThreadUri - lastSlashIndexInThreadUri - 1); // TODO
 
-		var threadName = document.QuerySelector("span.post__title")?.InnerHtml.Trim();
-		var threadStartTimeString = document.QuerySelector("span.post__time")?.InnerHtml;
+		var firstThreadPost = document.QuerySelector(".post");
+		var threadName = GetThreadName([
+			() => firstThreadPost?.QuerySelector(".post__title")?.InnerHtml.Trim(),
+			() => firstThreadPost?.QuerySelector(".post__message")?.InnerHtml.Trim(),
+			() => firstThreadPost?.QuerySelector(".post__message_op")?.InnerHtml.Trim(),
+		]);
+		var threadStartTimeString = firstThreadPost?.QuerySelector("span.post__time")?.InnerHtml;
 		DateTime.TryParseExact(threadStartTimeString?.Substring(0, "dd/MM/yy".Length),
 			"dd/MM/yy", default, default, out var threadStartTime);
 
@@ -65,5 +70,13 @@ public sealed class DvachThreadParser : IDvachThreadParser
 			ThreadName = threadName,
 			ThreadStartTime = threadStartTime.Ticks == 0 ? null : threadStartTime,
 		};
+	}
+
+	private static readonly IReadOnlySet<char> fileNameProhibitedChars = Path.GetInvalidFileNameChars().ToHashSet();
+	private string? GetThreadName(IEnumerable<Func<string?>> candidatesFactory)
+	{
+		return candidatesFactory.Select(c=> c()).Where(c => !string.IsNullOrWhiteSpace(c))?
+			.Select(c => string.Concat(c!.Select(x => fileNameProhibitedChars.Contains(x) ? ' ' : x).Take(64)))
+			.FirstOrDefault();
 	}
 }
