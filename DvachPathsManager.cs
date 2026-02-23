@@ -27,7 +27,7 @@ public sealed class DvachPathsManager : IDvachPathsManager, IServicePathsManager
 	{
 		if (Directory.Exists(GetWorkingDirectoryPath()) &&
 			Directory.GetDirectories(GetWorkingDirectoryPath())
-			.FirstOrDefault(x => x.StartsWith(threadId)) is string existingDirectory)
+			.FirstOrDefault(x => x.Equals(threadId) || x.StartsWith(threadId + " ")) is string existingDirectory)
 			return existingDirectory;
 
 		var threadDirectoryName = threadId

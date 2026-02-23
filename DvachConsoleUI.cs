@@ -31,7 +31,7 @@ public sealed class DvachConsoleUI : IDvachConsoleUI, IDvachEntryPoint
 		Console.Write("Enter 2ch thread URIs: ");
 		var threadUrisInput = Console.ReadLine() ?? "";
 		var threadUris = ThreadUriRegex.Matches(threadUrisInput)
-			.Distinct().Select(x => new Uri($"https://{x}")).ToList();
+			.Select(x => new Uri($"https://{x}")).Distinct().ToList();
 
 		_logger?.Information($"Found {threadUris.Count} thread links: " +
 			$"[{string.Join(", ", threadUris.Select(x => $"'{x}'"))}]");

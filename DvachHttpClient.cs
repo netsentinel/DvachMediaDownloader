@@ -35,6 +35,7 @@ public sealed class DvachHttpClient : IDvachHttpClient
 		_logger?.Information($"Requesting file from '{fileUri}'...");
 		var requestStarted = DateTime.UtcNow;
 		using var response = await _httpClient.GetAsync(fileUri, HttpCompletionOption.ResponseHeadersRead);
+		response.EnsureSuccessStatusCode();
 		await using var fs = new FileStream(destinationFilePath, new FileStreamOptions
 		{
 			Access = FileAccess.Write,

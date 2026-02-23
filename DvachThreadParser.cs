@@ -20,7 +20,6 @@ public sealed class DvachThreadParser : IDvachThreadParser
 {
 	private readonly IDvachHttpClient _dvachHttpClient;
 	private readonly ILogger? _logger;
-	public List<string> MediaFileExtensions { get; set; } = ["mp4", "webm", "jpeg", "jpg", "png", "gif", "bmp", "webp"];
 
 	public DvachThreadParser(IDvachHttpClient dvachHttpClient, ILogger? logger)
 	{
