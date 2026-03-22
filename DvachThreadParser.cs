@@ -131,7 +131,9 @@ public sealed class ArhivachThreadParser : IDvachThreadParser
 
 		var firstSlashIndexInThreadUri = threadUri.OriginalString.IndexOf('/', "https://".Length + 1);
 		var baseUri = threadUri.OriginalString.Substring(0, firstSlashIndexInThreadUri);
-		var mediaUris = mediaUriStrings.Select(href => new Uri(baseUri + href)).ToList();
+		var mediaUris = mediaUriStrings.Select(href 
+			// unlike 2ch, refs may be absolute here
+			=> href.StartsWith('/') ? new Uri(baseUri + href) : new Uri(href)).ToList();
 		return new IDvachThreadParser.ThreadParserResult
 		{
 			ThreadUri = threadUri,
