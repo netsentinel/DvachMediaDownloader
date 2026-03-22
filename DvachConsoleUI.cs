@@ -25,7 +25,9 @@ public sealed class DvachConsoleUI : IDvachConsoleUI, IDvachEntryPoint
 
 	Task IDvachEntryPoint.Run() => Interact();
 
-	public static readonly Regex ThreadUriRegex = new(@"2ch[.]\w+\/\w+\/res\/\d+[.]html");
+	public static readonly Regex ThreadUriRegex = new(
+		@"(2ch[.]\w+\/\w+\/res\/\d+[.]html)|(arhivach[.]\w+/thread/\d+)");
+
 	public async Task Interact()
 	{
 		Console.Write("Enter 2ch thread URIs: ");

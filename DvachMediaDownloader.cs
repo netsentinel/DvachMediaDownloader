@@ -7,15 +7,15 @@ public interface IDvachMediaDownloader
 
 public sealed class DvachMediaDownloader : IDvachMediaDownloader
 {
-	private readonly IDvachThreadParser _threadParser;
+	private readonly IEnumerable<IDvachThreadParser> _threadParsers;
 	private readonly IDvachHttpClient _dvachHttpClient;
 	private readonly IDvachPathsManager _pathsManager;
 	private readonly ILogger? _logger;
 
-	public DvachMediaDownloader(IDvachThreadParser threadParser,
+	public DvachMediaDownloader(IEnumerable<IDvachThreadParser> threadParsers,
 		IDvachHttpClient dvachHttpClient, IDvachPathsManager pathsManager, ILogger? logger)
 	{
-		_threadParser = threadParser;
+		_threadParsers = threadParsers;
 		_dvachHttpClient = dvachHttpClient;
 		_pathsManager = pathsManager;
 		_logger = logger;
@@ -23,7 +23,14 @@ public sealed class DvachMediaDownloader : IDvachMediaDownloader
 
 	public async Task DownloadMedia(Uri threadUri)
 	{
-		var threadParserResult = await _threadParser.GetMediaUrisFromThread(threadUri);
+		var threadParser = _threadParsers.FirstOrDefault(p => p.CanProcessThread(threadUri));
+		if (threadParser is null)
+		{
+			_logger?.Error($"No thread parser found for '{threadUri}'. Skipping.");
+			return;
+		}
+
+		var threadParserResult = await threadParser.GetMediaUrisFromThread(threadUri);
 
 		var targetDirectoryPath = _pathsManager.GetThreadWorkingDirectoryPath(threadParserResult.ThreadId,
 			threadParserResult.ThreadName, threadParserResult.ThreadStartTime);

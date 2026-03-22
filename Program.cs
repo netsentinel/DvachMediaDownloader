@@ -34,6 +34,7 @@ static class Program
 		services.AddScoped<HttpClient>((_) => new HttpClient());
 		services.AddScoped<IDvachHttpClient, DvachHttpClient>();
 		services.AddScoped<IDvachThreadParser, DvachThreadParser>();
+		services.AddScoped<IDvachThreadParser, ArhivachThreadParser>();
 		services.AddScoped<IDvachMediaDownloader, DvachMediaDownloader>();
 
 		services.AddScoped<DvachConsoleUI>();
