@@ -33,7 +33,7 @@ public sealed class DvachMediaDownloader : IDvachMediaDownloader
 		var threadParserResult = await threadParser.GetMediaUrisFromThread(threadUri);
 
 		var targetDirectoryPath = _pathsManager.GetThreadWorkingDirectoryPath(threadParserResult.ThreadId,
-			threadParserResult.ThreadName, threadParserResult.ThreadStartTime);
+			threadParserResult.ThreadName, threadParserResult.ThreadStartTime).Trim();
 		Directory.CreateDirectory(targetDirectoryPath);
 
 		foreach (var mediaUri in threadParserResult.MediaUris)
