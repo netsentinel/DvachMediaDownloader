@@ -36,7 +36,9 @@ public sealed class DvachHttpClient : IDvachHttpClient
 		var requestStarted = DateTime.UtcNow;
 		using var response = await _httpClient.GetAsync(fileUri, HttpCompletionOption.ResponseHeadersRead);
 		response.EnsureSuccessStatusCode();
-		await using var fs = new FileStream(destinationFilePath, new FileStreamOptions
+		var tempDestinationFilePath = destinationFilePath + ".in-progress";
+		File.Delete(tempDestinationFilePath);
+		await using (var fs = new FileStream(tempDestinationFilePath, new FileStreamOptions
 		{
 			Access = FileAccess.Write,
 			Mode = FileMode.CreateNew,
@@ -44,10 +46,14 @@ public sealed class DvachHttpClient : IDvachHttpClient
 			Options = FileOptions.Asynchronous,
 			PreallocationSize = default,
 			BufferSize = 512 * 1024,
-		});
-		_logger?.Information($"Streaming into '{destinationFilePath}'...");
-		await response.Content.CopyToAsync(fs);
-		var requestTookSeconds = (DateTime.UtcNow - requestStarted).TotalSeconds;
-		_logger?.Information($"Done: {fs.Length/1024d/1024d:0.000} MiB in {requestTookSeconds:0.000} seconds.");
+		}))
+		{
+			_logger?.Information($"Streaming into '{tempDestinationFilePath}'...");
+			await response.Content.CopyToAsync(fs);
+			var requestTookSeconds = (DateTime.UtcNow - requestStarted).TotalSeconds;
+			_logger?.Information($"Done: {fs.Length/1024d/1024d:0.000} MiB in {requestTookSeconds:0.000} seconds.");
+		}
+		_logger?.Information($"Renaming '{tempDestinationFilePath}' -> '{destinationFilePath}'.");
+		File.Move(tempDestinationFilePath, destinationFilePath);
 	}
 }
