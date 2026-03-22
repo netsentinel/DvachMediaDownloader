@@ -31,7 +31,11 @@ static class Program
 		services.AddSingleton<DvachPathsManager>();
 		services.AddSingleton<IDvachPathsManager>(provider => provider.GetRequiredService<DvachPathsManager>());
 		services.AddSingleton<IServicePathsManager>(provider => provider.GetRequiredService<DvachPathsManager>());
-		services.AddScoped<HttpClient>((_) => new HttpClient());
+		services.AddScoped<HttpClient>((_) => new HttpClient()
+		{
+			DefaultRequestVersion = new(2, 0),
+			DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower
+		});
 		services.AddScoped<IDvachHttpClient, DvachHttpClient>();
 		services.AddScoped<IDvachThreadParser, DvachThreadParser>();
 		services.AddScoped<IDvachThreadParser, ArhivachThreadParser>();
